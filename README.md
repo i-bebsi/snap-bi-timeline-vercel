@@ -73,3 +73,12 @@ node scripts/build-frontend.mjs
 - Backup harian: trigger Apps Script diganti **Vercel Cron** yang memanggil
   `POST /api` dengan `{fn:'backupNow', args:[]}` + header auth (belum di-set — lihat Fase 7).
 - `Session.getActiveUser()` (login otomatis Google) diganti JWT cookie + `ADMIN_*` env.
+
+## Troubleshooting
+- Error `self-signed certificate in certificate chain` saat koneksi ke Supabase:
+  pool `pg` sudah di-set `ssl: { rejectUnauthorized: false }` (lihat
+  `src/server/lib/db.js`). Pastikan `DATABASE_URL` memakai string "Transaction
+  pooler" (port 6543) atau string direct — keduanya butuh SSL tanpa verifikasi CA.
+- Error `relation "xxx" does not exist`: tabel belum dibuat — jalankan
+  `db/migrations/001_schema.sql` di Supabase SQL Editor.
+
