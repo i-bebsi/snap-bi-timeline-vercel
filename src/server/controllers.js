@@ -120,6 +120,7 @@ export const controllers = {
     }
     return {
       urlMasked: masked,
+      nodeVersion: process.version,
       sslConfig: pool.options ? pool.options.ssl : '(n/a)',
       ping,
     };
