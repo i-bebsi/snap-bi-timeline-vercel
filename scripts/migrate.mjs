@@ -59,7 +59,11 @@ function norm(table, key, v) {
 }
 
 async function run() {
-  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL || '', max: 5 });
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL || '',
+    max: 5,
+    ssl: { rejectUnauthorized: false },
+  });
   try {
     for (const name of order) {
       const rows = tables[name] || [];

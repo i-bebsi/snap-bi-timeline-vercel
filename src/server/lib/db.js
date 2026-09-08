@@ -18,6 +18,9 @@ export function getPool() {
   _pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL || '',
     max: 5,
+    // Supabase: cert rantainya self-signed (terutama koneksi direct) → matikan
+    // verifikasi CA agar TLS tidak gagal "self-signed certificate in certificate chain".
+    ssl: { rejectUnauthorized: false },
   });
   return _pool;
 }
