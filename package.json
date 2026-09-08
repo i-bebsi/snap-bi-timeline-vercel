@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": { "node": "22.x" },
   "description": "SNAP BI Timeline — port dari Google Apps Script ke Vercel (Supabase/Postgres).",
   "scripts": {
     "dev": "node src/server/dev.js",
