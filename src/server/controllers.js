@@ -4,6 +4,7 @@
 import { CONFIG, env } from './config.js';
 import { envelope, nowIso, todayIso, toNum, assert } from './lib/utils.js';
 import { AuthService } from './auth.js';
+import { getPool, raw } from './lib/db.js';
 import { BankService } from './services/bank.js';
 import { ProjectService } from './services/project.js';
 import { TemplateService } from './services/template.js';
@@ -106,6 +107,23 @@ export const controllers = {
 
   /* admin / setup / diagnostic */
   getDbStatus: () => envelope('getDbStatus', () => Setup.getDatabaseStatus()),
+  dbDiagnostic: () => envelope('dbDiagnostic', async () => {
+    const url = env.databaseUrl() || '(kosong)';
+    const masked = url.replace(/\/\/([^:@/]+):([^@/]+)@/, '//$1:***@');
+    const pool = getPool();
+    let ping = null;
+    try {
+      const r = await raw('SELECT 1 AS ok');
+      ping = { ok: true, rows: r.length };
+    } catch (e) {
+      ping = { ok: false, message: e.message, code: e.code, stack: (e.stack || '').split('\n').slice(0, 3).join(' | ') };
+    }
+    return {
+      urlMasked: masked,
+      sslConfig: pool.options ? pool.options.ssl : '(n/a)',
+      ping,
+    };
+  }),
   seedMasterData: () => envelope('seedMasterData', () => Setup.seedMasterData()),
   dashboardRebuild: () => envelope('dashboardRebuild', async () => {
     AuthService.require('CONFIGURE');
