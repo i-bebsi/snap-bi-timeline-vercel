@@ -5,7 +5,7 @@ import 'dotenv/config';
 
 export const CONFIG = {
   APP_NAME: 'SNAP BI Timeline',
-  APP_VERSION: '1.0.0',
+  APP_VERSION: '1.0.1',
   TIMEZONE: 'Asia/Jakarta',
 
   /** Nama tabel (port dari CONFIG.SHEETS). */
