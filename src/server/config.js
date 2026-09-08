@@ -84,8 +84,9 @@ export function getEnv(name, fallback = '') {
 }
 
 export const env = {
-  databaseUrl: () => getEnv('DATABASE_URL'),
-  jwtSecret: () => getEnv('JWT_SECRET'),
+  // Prioritas: DATABASE_URL eksplisit, lalu POSTGRES_URL (auto-inject integrasi Supabase).
+  databaseUrl: () => getEnv('DATABASE_URL') || getEnv('POSTGRES_URL'),
+  jwtSecret: () => getEnv('JWT_SECRET') || getEnv('SUPABASE_JWT_SECRET'),
   adminEmail: () => getEnv('ADMIN_EMAIL').toLowerCase(),
   adminPasswordHash: () => getEnv('ADMIN_PASSWORD_HASH'),
   environment: () => getEnv('ENVIRONMENT') || getEnv('VERCEL_ENV') || 'DEV',

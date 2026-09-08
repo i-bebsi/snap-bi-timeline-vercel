@@ -2,6 +2,7 @@
 // Testable: injeksi pool in-memory lewat setPool() (dipakai vitest + pg-mem).
 
 import pg from 'pg';
+import { parse as parseConnectionString } from 'pg-connection-string';
 import { table, NUMERIC_COLUMNS } from '../schema.js';
 import { str, toNum, toBool, nextId, nowIso } from './utils.js';
 import { DEFAULT_CONFIG_ROWS } from '../schema.js';
@@ -15,11 +16,21 @@ export function setPool(pool) {
 
 export function getPool() {
   if (_pool) return _pool;
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+  // PENTING: jangan pakai connectionString + ssl bersamaan. pg menggabungkan
+  // `Object.assign({}, config, parse(connectionString))` sehingga `sslmode=require`
+  // di string menimpa `ssl` kita → cert diverifikasi → "self-signed in chain".
+  // Maka parse sendiri lalu bangun config dari field terpisah.
+  const p = parseConnectionString(url);
   _pool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL || '',
+    host: p.host || 'localhost',
+    port: p.port ? parseInt(p.port, 10) : 5432,
+    user: p.user,
+    password: p.password,
+    database: p.database || 'postgres',
     max: 5,
-    // Supabase: cert rantainya self-signed (terutama koneksi direct) → matikan
-    // verifikasi CA agar TLS tidak gagal "self-signed certificate in certificate chain".
+    // Supabase: cert-nya self-signed (terutama koneksi pooler/direct) → matikan
+    // verifikasi CA agar TLS tidak gagal.
     ssl: { rejectUnauthorized: false },
   });
   return _pool;

@@ -12,6 +12,7 @@
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
+import { parse as parseConnectionString } from 'pg-connection-string';
 import { NUMERIC_COLUMNS } from '../src/server/schema.js';
 
 const file = process.argv[2];
@@ -59,8 +60,14 @@ function norm(table, key, v) {
 }
 
 async function run() {
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+  const p = parseConnectionString(url);
   const pool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL || '',
+    host: p.host || 'localhost',
+    port: p.port ? parseInt(p.port, 10) : 5432,
+    user: p.user,
+    password: p.password,
+    database: p.database || 'postgres',
     max: 5,
     ssl: { rejectUnauthorized: false },
   });
