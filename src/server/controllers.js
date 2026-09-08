@@ -5,6 +5,8 @@ import { CONFIG, env } from './config.js';
 import { envelope, nowIso, todayIso, toNum, assert } from './lib/utils.js';
 import { AuthService } from './auth.js';
 import { getPool, raw } from './lib/db.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 import { BankService } from './services/bank.js';
 import { ProjectService } from './services/project.js';
 import { TemplateService } from './services/template.js';
@@ -111,6 +113,8 @@ export const controllers = {
     const url = env.databaseUrl() || '(kosong)';
     const masked = url.replace(/\/\/([^:@/]+):([^@/]+)@/, '//$1:***@');
     const pool = getPool();
+    let pgVersion = '(n/a)';
+    try { pgVersion = require('pg/package.json').version; } catch (e) {}
     let ping = null;
     try {
       const r = await raw('SELECT 1 AS ok');
@@ -121,6 +125,7 @@ export const controllers = {
     return {
       urlMasked: masked,
       nodeVersion: process.version,
+      pgVersion,
       sslConfig: pool.options ? pool.options.ssl : '(n/a)',
       ping,
     };
